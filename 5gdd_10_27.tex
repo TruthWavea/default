@@ -1,0 +1,347 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\F}{\mathbb{F}}
+
+\title{Towards a direct construction of a 5-GDD of type $10^{27}$:\\
+obstructions to symmetric constructions and a computer search}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The existence of a group divisible design with block size five and type $10^{27}$
+is one of the cases left open by Forbes~\cite{Forbes2023}.
+We attempted a direct (computer) construction.
+\textbf{We did not find such a design}; this note records what we can prove and what we tried.
+We show that no 5-GDD of type $10^{27}$ admits an automorphism group acting regularly on
+its $270$ points (in particular none is cyclic), that none admits the group
+$\{x\mapsto qx+t\}$ of $\F_{27}$ ($q$ a nonzero square) acting on the groups, and that
+in the natural framework used by Forbes for type $10^{15}$
+(point set $\Z_{270}$, groups the residue classes modulo $27$, development
+$x\mapsto x+2j$) no further affine automorphism can be imposed, so that $26$ base blocks
+are unavoidable there.  We also derive a necessary ``signed difference'' identity for that
+framework and summarise the computer searches that were carried out.
+\end{abstract}
+
+\section{Introduction}
+
+A \emph{$5$-GDD of type $g^u$} is a triple $(V,\mathcal G,\mathcal B)$ where $V$ is a set of
+$gu$ points, $\mathcal G$ is a partition of $V$ into $u$ \emph{groups} of size $g$, and
+$\mathcal B$ is a collection of $5$-subsets of $V$ (\emph{blocks}) such that every pair of
+points from distinct groups lies in exactly one block and no pair from the same group lies
+in a block.  The necessary conditions
+\[
+u\ge 5,\qquad g(u-1)\equiv 0 \pmod 4,\qquad g^2u(u-1)\equiv 0 \pmod{20}
+\]
+hold for $(g,u)=(10,27)$, and by~\cite[Theorem~1.2]{Forbes2023} the case $10^{27}$ is one
+of the few remaining possible exceptions for $g=10$ (together with $u\in\{5,7,39,47\}$).
+A 5-GDD of type $10^{27}$ has
+\[
+v=270,\qquad b=\frac{270\cdot 260}{2\cdot 10}=3510,\qquad r=\frac{260}{4}=65 .
+\]
+If it existed, Lemma~2.1 of~\cite{Forbes2023} (inflation by a factor $5$) would also give
+type $50^{27}$, the remaining exception for $g=50$.
+
+\medskip\noindent
+\textbf{Status.} No 5-GDD of type $10^{27}$ is constructed in this note.
+Sections~\ref{sec:regular}--\ref{sec:F27} contain complete proofs of non-existence of designs
+with certain prescribed automorphism groups; Section~\ref{sec:search} describes the
+computer search and its (negative) outcome.
+
+\section{No regular automorphism group}\label{sec:regular}
+
+\begin{proposition}\label{prop:regular}
+No $5$-GDD of type $10^{27}$ admits an automorphism group acting regularly on its $270$ points.
+In particular there is no cyclic $5$-GDD of type $10^{27}$ (one invariant under $x\mapsto x+1$ on $\Z_{270}$).
+\end{proposition}
+
+\begin{proof}
+Suppose $G$, $|G|=270$, acts regularly; identify $V$ with $G$ (acting by left multiplication).
+The group containing the identity is a subgroup $H$ of order $10$ and the groups are the left
+cosets $gH$.  An element of order $2$ acts on $G$ as a product of $135$ transpositions, an odd
+permutation, so the even permutations in $G$ form a subgroup $G_0$ of index $2$, and the
+involution of $H$ lies outside $G_0$; hence every coset $gH$ meets $G_0$ in exactly $5$ points.
+
+Call a pair of points \emph{split} if exactly one of them lies in $G_0$.  The number of split
+pairs lying in distinct groups is
+\[
+135\cdot 135-27\cdot 5\cdot 5=17550 .
+\]
+A block $B$ with $e$ points in $G_0$ and $o=5-e$ points outside contains $eo\in\{0,4,6\}$ split
+pairs, and $eo$ is constant on the $G$-orbit of $B$ (elements of $G_0$ preserve $G_0$, the others
+interchange $G_0$ and its complement).  The stabiliser of a block acts semiregularly on it, so it
+has order $1$ or $5$.  In the latter case the block is an orbit of a subgroup of order $5$, which
+lies in $G_0$, so the block lies in one coset of $G_0$ and $eo=0$.  Hence, summing over
+representatives $B_1,\dots,B_s$ of the full orbits,
+\[
+17550=270\sum_{i=1}^{s} e_io_i ,\qquad\text{i.e.}\qquad \sum_{i=1}^{s}e_io_i=65,
+\]
+which is impossible because every $e_io_i$ is even.
+\end{proof}
+
+This explains why the construction of type $10^{15}$ in~\cite{Forbes2023} uses the mapping
+$x\mapsto x+2j$ rather than $x\mapsto x+j$; the same parity argument applies to
+type $10^{u}$ whenever $u\equiv 3\pmod 4$.
+
+\section{\texorpdfstring{The framework $\Z_{270}$, $x\mapsto x+2j$}{The framework Z270, x -> x+2j}}\label{sec:framework}
+
+Let $V=\Z_{270}$ with groups the residue classes modulo $27$, and look for a design invariant under
+$\tau\colon x\mapsto x+2$.  By the Chinese remainder theorem we write $x\in\Z_{270}$ as
+$(a,\ell)\in\Z_{135}\times\{0,1\}$ with $a=x \bmod 135$ and $\ell=x\bmod 2$ (the \emph{level});
+then $\tau$ acts as $(a,\ell)\mapsto(a+2,\ell)$, i.e.\ $\langle\tau\rangle\cong\Z_{135}$ acts
+regularly on each level, and two points lie in the same group if and only if their
+$a$-coordinates agree modulo $27$.  Put $H=27\Z_{135}$.
+
+No block is fixed by a nontrivial element of $\langle\tau\rangle$ (a fixed block would be a
+union of orbits of a subgroup of order $3$, or of $H$, which is impossible for $5$ points from
+distinct groups), so the design consists of
+\[
+3510/135=26
+\]
+full orbits.  For a base block $B$ write $B^0,B^1\subseteq\Z_{135}$ for its level-$0$ and level-$1$
+coordinates and $e_B=|B^0|$, $o_B=|B^1|$.
+
+\begin{lemma}\label{lem:diff}
+Base blocks $B_1,\dots,B_{26}$ generate a $5$-GDD of type $10^{27}$ under $\langle\tau\rangle$ if and only if
+\begin{enumerate}
+\item the differences $x-y$ ($x\ne y\in B_i^0$, all $i$) are exactly the elements of $\Z_{135}\setminus H$, each once;
+\item the same holds for the level-$1$ parts $B_i^1$;
+\item the \emph{mixed} differences $x-y$ ($x\in B_i^1$, $y\in B_i^0$, all $i$) are exactly the elements of $\Z_{135}\setminus H$, each once.
+\end{enumerate}
+Consequently $\sum e_B(e_B-1)=\sum o_B(o_B-1)=\sum e_Bo_B=130$, hence $\sum e_B=\sum o_B=65$ and
+$\sum e_B^2=195$.
+\end{lemma}
+
+\begin{proof}
+Standard: a pair $\{(a,\ell),(a',\ell')\}$ is covered once by the developed design exactly when the
+corresponding difference occurs once in the appropriate list, and pairs inside a group correspond
+to differences in $H$.  The counts follow from $|\Z_{135}\setminus H|=130$.
+\end{proof}
+
+For example, the patterns $(n_{4,1},n_{3,2},n_{2,3},n_{1,4})=(6,8,5,7)$ or $(7,5,8,6)$
+(numbers of base blocks with $(e,o)$ points on the two levels) satisfy the counting conditions.
+
+\begin{proposition}[Signed difference identity]\label{prop:signed}
+For a base block $B$ let $D_B=\sum_{x\in B^0}[\bar x]-\sum_{y\in B^1}[\bar y]\in\Z[\Z_{27}]$, where
+$\bar x=x\bmod 27$.  Then
+\[
+\sum_{i=1}^{26} D_{B_i}D_{B_i}^{(-1)}=130 .
+\]
+Equivalently, the $27\times 702$ matrix with rows indexed by $r\in\Z_{27}$, columns by pairs
+$(i,x)\in\{1,\dots,26\}\times\Z_{27}$ and entries the coefficient of $[x-r]$ in $D_{B_i}$, has
+pairwise orthogonal rows of weight $130$.
+\end{proposition}
+
+\begin{proof}
+Reduce Lemma~\ref{lem:diff} modulo $27$: each nonzero residue occurs exactly $5$ times among the level-$0$
+differences, $5$ times among the level-$1$ differences and $5$ times among the mixed differences, and $0$
+occurs only as $x-x$.  Writing $A_i,C_i$ for the level parts,
+$\sum A_iA_i^{(-1)}=65+5(\Z_{27}-1)$, $\sum C_iC_i^{(-1)}=65+5(\Z_{27}-1)$ and
+$\sum C_iA_i^{(-1)}=\sum A_iC_i^{(-1)}=5(\Z_{27}-1)$, where $\Z_{27}$ also denotes the sum of all group
+elements.  Hence $\sum D_iD_i^{(-1)}=130$.
+\end{proof}
+
+We checked that the published design of type $10^{15}$~\cite{Forbes2023}, which has the same form
+with $\Z_{150}$ and residue classes modulo $15$, satisfies the analogous identity
+$\sum D_BD_B^{(-1)}=70$ in $\Z[\Z_{15}]$.
+
+\section{No further affine automorphisms in the framework}\label{sec:affine}
+
+\begin{proposition}\label{prop:affine}
+Let $\mathcal D$ be a $5$-GDD of type $10^{27}$ on $\Z_{270}$ with groups the residue classes modulo $27$,
+invariant under $x\mapsto x+2$.  If $\varphi(x)=mx+t$ with $\gcd(m,270)=1$ is an automorphism of
+$\mathcal D$, then $m=1$ and $t$ is even.
+\end{proposition}
+
+\noindent
+Thus the base blocks cannot be organised into orbits of a larger affine group, and $26$ base blocks
+are unavoidable in this framework.  We first record a simple observation.
+
+\begin{lemma}\label{lem:transl}
+Let $\mu$ be a level-preserving automorphism of the form $(a,\ell)\mapsto(ma,\ell)$, let $B$ be a block and
+let $P,Q\in B$ lie on the same level.  If $\mu(Q)-\mu(P)=\pm(Q-P)$, or if $P,Q$ lie on different levels and
+$\mu(Q)-\mu(P)=Q-P$ (differences of $a$-coordinates), then $\mu(B)=B+s$ for some $s\in\Z_{135}$.
+\end{lemma}
+
+\begin{proof}
+In each case $\{\mu(P),\mu(Q)\}$ is a translate $\{P,Q\}+s$ of $\{P,Q\}$ by an element of
+$\Z_{135}$.  The blocks $\mu(B)$ and $B+s$ both contain this pair, so they coincide.
+\end{proof}
+
+\begin{proof}[Proof of Proposition~\ref{prop:affine}]
+In the coordinates $(a,\ell)$ we have $\varphi(a,\ell)=(ma+t,\ \ell+t)$ with indices taken modulo $135$
+and $2$ respectively.
+
+\emph{Case $t$ odd and $m^2\equiv1\pmod{135}$.}  Then $m^2\equiv1\pmod{270}$ and the maps
+$x\mapsto x+2j$ and $x\mapsto mx+s$ ($s$ odd) form a group of order $270$.  A map $x\mapsto mx+s$ with
+$s$ odd has no fixed point, since $(m-1)x$ is even.  So this group acts regularly, contradicting
+Proposition~\ref{prop:regular}.
+
+\emph{Otherwise} some power of $\varphi$ (namely $\varphi$ if $t$ is even, $\varphi^2$ if $t$ is odd)
+is level preserving with multiplier $m'\not\equiv1\pmod{135}$.  Composing with a power of $\tau$ we may
+assume that $\mu\colon(a,\ell)\mapsto(m'a,\ell)$ is an automorphism, and replacing $m'$ by a power we
+may assume that $m'$ has order $2$ or $3$ in $\Z_{135}^{*}\cong\Z_{18}\times\Z_4$.  The elements of
+order $2$ are $134,26,109$ and those of order $3$ are $46,91$.  For a block $B$ with
+$\mu(B)=B+s$, put $\pi(a,\ell)=(m'a-s,\ell)$, a permutation of the points with $\pi(B)=B$.
+
+\smallskip\noindent\emph{$m'=134=-1$.}  Every block has a level containing at least $3$ points, so it
+contains a pure pair.  By Lemma~\ref{lem:transl} with $\mu(Q)-\mu(P)=-(Q-P)$, every block satisfies
+$\pi(B)=B$ with $\pi(a)=-a-s$.  This involution has a unique fixed point on each level.  A
+$\pi$-invariant set of at least $3$ points on one level contains either the fixed point $y$ and a pair
+$\{x,\pi x\}$, giving the repeated difference $x-y=y-\pi x$, or two pairs $\{x,\pi x\},\{z,\pi z\}$,
+giving $z-x=\pi x-\pi z$.  Both contradict Lemma~\ref{lem:diff}.
+
+\smallskip\noindent\emph{$m'=26$} ($\equiv-1 \bmod 27$, $\equiv1\bmod 5$).  For $d\in 5\Z_{135}\setminus\{0\}$ we
+have $26d=-d$, and these $26$ elements form $13$ pure $\pm$-classes on each level.  By
+Lemma~\ref{lem:transl} each such class is covered by a block with $\pi(B)=B$, where
+$\pi(a)=26a-s$.
+
+Since $\pi^2(a)=a-27s$ and $B$ is $\pi^2$-invariant, a nonzero translation by $27s\in H$ would force
+$5$ points of $B$ into one group; hence $5\mid s$.  Then the fixed points of $\pi$ on a level form one
+coset of $H$, i.e.\ they lie in one group, so $B$ contains exactly one fixed point and two
+$\pi$-orbits $\{x,\pi x\}$ of length $2$ (each on one level).  Each such orbit contributes one of the
+special pure classes ($\pi x-x=25x-s\in5\Z$).  No other pair of $B$ does: if $\{P,Q\}\subseteq B$ is a
+pure pair that is not a $\pi$-orbit and $Q-P\in5\Z$, then $\{\pi P,\pi Q\}\subseteq B$ is a different pair
+with $\pi Q-\pi P=26(Q-P)=-(Q-P)$, so the same class would be covered twice.  Hence each such block covers exactly $2$ of the $26$ special classes, giving $13$
+such orbits.  Every remaining orbit $B$ satisfies $\mu(B)\neq B+s$, and these orbits are permuted by
+$\mu$ in pairs.  But $26-13=13$ is odd, a contradiction.
+
+\smallskip\noindent\emph{$m'=109$} ($\equiv1 \bmod 27$, $\equiv-1\bmod 5$).  Now $109d=d$ for
+$d\in5\Z_{135}$, and these differences give $13+13$ pure classes and $26$ mixed differences.  By
+Lemma~\ref{lem:transl} each is covered by a block with $\pi(B)=B$, $\pi(a)=109a-s$.
+
+Here $\pi^2$ is the translation by $-110s$, of order dividing $27$; invariance of a $5$-set forces
+$27\mid s$.  Then a non-fixed point $x$ and $\pi x$ differ by $108x-s\in 27\Z=H$, so they lie in the same
+group.  Hence $B$ consists of fixed points of $\pi$, all congruent modulo $5$, and all $10$ differences
+of $B$ lie in $5\Z_{135}$.  These blocks therefore cover the $13+13+26=52$ special differences in
+blocks of $10$, which is impossible.
+
+\smallskip\noindent\emph{$m'\in\{46,91\}$} (order $3$, $\equiv1\bmod 9$).  Here $m'd=d$ for all
+$d\in3\Z_{135}$.  Among any $5$ points two have $a$-coordinates congruent modulo $3$, so by
+Lemma~\ref{lem:transl} every block satisfies $\pi(B)=B$ with $\pi(a)=m'a-s$.
+
+As $\pi^3$ is the translation by $-3s$, we get $45\mid s$.  The fixed points of $\pi$ then form a
+residue class modulo $3$.  The other $\pi$-orbits are $3$-cycles $\{x,x+c,x+2c\}$ with $c\in45\Z$,
+which contain a repeated difference.  Hence every block lies in a residue class modulo $3$, and the
+differences not divisible by $3$ are never covered, a contradiction.
+\end{proof}
+
+\section{\texorpdfstring{No affine symmetry over $\F_{27}$}{No affine symmetry over F27}}\label{sec:F27}
+
+The field $\F_{27}$ suggests much smaller symmetric searches.  Let $S$ be the group of nonzero squares
+of $\F_{27}$ ($|S|=13$; note $-1\notin S$ since $27\equiv3\pmod 4$).
+
+\begin{proposition}\label{prop:agl}
+Let $X$ be a set of size $10$.  There is no $5$-GDD of type $10^{27}$ on $\F_{27}\times X$ with groups
+$\{u\}\times X$ that is invariant under the group
+$\Gamma=\{(u,a)\mapsto(qu+t,a): q\in S,\ t\in\F_{27}\}$ of order $351$.
+\end{proposition}
+
+\begin{proof}
+A nontrivial element of $\Gamma$ permutes $\F_{27}$ with cycle type $3^9$ or $1^1 13^2$, so it cannot
+stabilise a block (whose five points have distinct first coordinates).  Hence all block orbits are
+full and there are $3510/351=10$ base blocks.
+
+For points $P=(u,a)$, $Q=(w,c)$ with $u\neq w$, exactly one of $w-u$ and $u-w$ is a square.  Order the
+pair so that $w-u\in S$ and call $(a,c)\in X^2$ its \emph{label}.  $\Gamma$ preserves labels and acts
+regularly on ordered pairs $(u,w)$ with $w-u\in S$.  So the $100$ orbits of cross pairs correspond to
+the $100$ labels, and the $100$ pairs inside the $10$ base blocks must carry every label in $X^2$
+exactly once.
+
+Fix $a\in X$ and let $n_a$ be the number of base-block points with second coordinate $a$.  Each such
+point lies in $4$ pairs, and $a$ occurs $20$ times as a coordinate of a label (the diagonal label
+$(a,a)$ counted twice), so $n_a=5$.  The label $(a,a)$ occurs once, so exactly one base block contains
+$a$ twice and no block contains it three times.  A block containing two values twice would contain $4$
+pairs with labels in $\{(a,b),(b,a)\}$, but only $2$ are allowed.  Hence each of the $10$ base blocks
+has exactly one repeated value, and we may write the blocks as $B_a$ ($a\in X$) with values
+$\{a,a\}\cup S_a$, $|S_a|=3$, $a\notin S_a$.
+
+Draw an arc $a\to b$ for $b\in S_a$.  The labels $(a,b),(b,a)$ ($a\neq b$) together occur exactly twice:
+$B_a$ contributes $2$ if $b\in S_a$, $B_b$ contributes $2$ if $a\in S_b$, and every $B_c$ with
+$a,b\in S_c$ contributes $1$.  Hence there are no $2$-cycles.  Every vertex has out-degree $3$ and, since
+$n_a=5$, in-degree $3$.  The complement $\bar G$ of the underlying graph is therefore a cubic graph on
+$10$ vertices.  Each $S_c$ spans a triangle of $\bar G$, and every edge of $\bar G$ lies in exactly two
+of the ten triangles $S_c$ (counted with multiplicity).
+
+If a triangle $T=S_c=S_{c'}$ is repeated, a vertex $u\in T$ has a third edge $ux$; a triangle through
+$ux$ must use a second edge at $u$, which is an edge of $T$ and is already covered twice.  So the ten
+triangles are distinct.  Let $uv$ be an edge lying in the distinct triangles $uvw_1$ and $uvw_2$.  As
+$\bar G$ is cubic, $u$ has neighbours $v,w_1,w_2$ and $v$ has neighbours $u,w_1,w_2$.  The edge $uw_1$
+lies in two triangles, whose third vertices are common neighbours of $u$ and $w_1$, hence lie in
+$\{v,w_2\}$; so $w_1w_2$ is an edge.  Then $\{u,v,w_1,w_2\}$ induces a $K_4$, which is a connected
+component because the graph is cubic.  So every component of $\bar G$ is $K_4$, which is impossible on
+$10$ vertices.
+\end{proof}
+
+\begin{remark}
+Similarly there is no design on $\F_{27}\times\Z_{10}$ (groups $\{u\}\times\Z_{10}$, levels $x \bmod 2$)
+invariant under $(u,x)\mapsto(u+t,x+2j)$ and $(u,x)\mapsto(\omega^2u,x)$ with $\omega$ primitive.
+Such a design would have $2$ base blocks.  The $65$ pure level-$0$ $\pm$-differences split into
+$5$ orbits of the multiplier, which would require $\binom{e_1}{2}+\binom{e_2}{2}=5$, and no two
+binomial coefficients $\binom{e}{2}$ ($0\le e\le 5$) sum to $5$.
+\end{remark}
+
+\section{Computer search}\label{sec:search}
+
+All searches used the framework of Section~\ref{sec:framework} (or its equivalent forms
+$\Z_{27}\times\Z_5\times\{0,1\}$ and $\F_{27}\times\Z_5\times\{0,1\}$).  The following methods were tried:
+\begin{itemize}
+\item simulated annealing and min-conflicts tabu search on the $26$ base blocks, including moves that
+  shift the level-$1$ part of a block (which changes only mixed differences) and constraint weighting;
+\item a two-phase method: first the level-$0$ and level-$1$ shapes (pure differences, found instantly),
+  then pairing, signs and shifts so that the mixed differences tile $\Z_{135}\setminus H$
+  (exact cover with $\approx 21\,000$ rows, attacked with dancing links and with the SAT solver CaDiCaL);
+\item a projection-and-lift method: first the $\Z_{27}$-projection, then labels in $\Z_5\times\{0,1\}$
+  making every difference class bijective (local search, CaDiCaL, OR-Tools CP-SAT);
+\item randomised backtracking that always covers the most constrained uncovered difference, with restarts.
+\end{itemize}
+
+The best configurations found leave between $2$ and $4$ of the $260$ difference classes of
+Lemma~\ref{lem:diff} uncovered (and the same number covered twice).  Typically all pure differences
+are correct and the defect lies among the mixed differences.  No design was found.
+
+As calibration, the same backtracking search finds a design of type $10^9$ in this framework
+($\Z_{90}$, $x\mapsto x+2j$, $8$ base blocks) within seconds.  An exhaustive run shows that the
+framework contains no design of type $10^5$ (as expected, since such a design is a
+$\mathrm{TD}(5,10)$).  However, none of the methods above recovered a design of type $10^{15}$, which is
+known to exist in this framework~\cite{Forbes2023}, within comparable running times.  The negative
+outcome for $10^{27}$ therefore reflects the difficulty of the search and is \emph{not} evidence of
+non-existence.
+
+\section{Conclusion}
+
+The existence of a $5$-GDD of type $10^{27}$ remains open.  Propositions~\ref{prop:regular},
+\ref{prop:affine} and~\ref{prop:agl} rule out the most natural symmetric constructions and show that
+a direct construction of Forbes type ($\Z_{270}$, $x\mapsto x+2j$) needs $26$ base blocks with no
+additional affine symmetry.  Proposition~\ref{prop:signed} gives a necessary condition that any such
+construction must satisfy.  Any candidate list of base blocks can be checked by developing them under
+$x\mapsto x+2j$ ($0\le j<135$) and verifying that the $35100$ cross-group pairs are each covered exactly
+once.
+
+\begin{thebibliography}{9}
+\bibitem{Forbes2023}
+A.~D.~Forbes, Group divisible designs with block size five,
+\emph{Australas.\ J.\ Combin.} \textbf{87}(1) (2023), 1--11.
+\bibitem{ForbesSupp}
+A.~D.~Forbes, Group divisible designs with block size five: direct constructions,
+arXiv:2211.14124 (2023).
+\bibitem{WeiGe}
+H.~Wei and G.~Ge, Some more 5-GDDs, 4-frames and 4-RGDDs,
+\emph{Discrete Math.} \textbf{336} (2014), 7--21.
+\end{thebibliography}
+
+\end{document}
