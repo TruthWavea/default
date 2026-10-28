@@ -1,0 +1,778 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\TD}{\mathrm{TD}}
+\newcommand{\RTD}{\mathrm{RTD}}
+
+\title{The $4$-RGDD of type $10^{4}$ and three mutually orthogonal\\
+Latin squares of order $10$:
+an equivalence, what is known,\\ and a computer search}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+In the existence theorems of Wei and Ge for $4$-RGDDs
+\cite[Theorem~4.21]{WG14}, \cite[Theorem~5.2]{WG17} the type $10^{4}$ is one of the
+possible exceptions.  We were asked to construct a $4$-RGDD of type $10^{4}$
+directly, i.e.\ three mutually orthogonal Latin squares of order $10$, or else to
+prove that none exists.
+\textbf{We achieved neither.}
+We prove that a $4$-RGDD of type $10^{4}$ exists if and only if three mutually
+orthogonal Latin squares of order $10$ exist (Theorem~\ref{thm:equiv}); the
+existence of three MOLS$(10)$ is a famous open problem, stated as unresolved in work
+published in 2026 \cite{BKS26}.  A construction would settle it one way and a
+non-existence proof the other, so neither can be expected from routine methods.
+What this note does contain:
+(i) complete proofs of the equivalence and of two obstructions to the usual direct
+constructions (no $4$-GDD of type $10^{4}$ admits a group of order $10$ fixing three of
+its groups and acting regularly on them; in particular none admits an abelian
+point-regular group, so none is cyclic);
+(ii) a verified incomplete $4$-RGDD of type $10^{4}$ with a hole of type $2^{4}$,
+obtained from Brouwer's four MOLS of order $10$ with a hole of order $2$, and a proof
+that filling holes cannot help: a $4$-IRGDD of type $(10,h)^{4}$ has $h\le 2$, for $h=2$
+the hole can never be filled, and $h=1$ is equivalent to the original problem;
+(iii) an independent verification of the near triple of Egan and Wanless, which in
+design language is a $4$-GDD of type $10^{4}$ with seven pairwise disjoint parallel
+classes (a resolution needs ten);
+(iv) a computer search in which \textbf{$198{,}464$} Latin squares of order $10$ were each
+tested \emph{exhaustively} for membership in a triple of MOLS; none is.
+\end{abstract}
+
+\section{Introduction}
+
+The existence theorem for $4$-RGDDs, in the form updated by Wei and Ge
+\cite[Theorem~4.21]{WG14}, \cite[Theorem~5.2]{WG17}, states that the
+necessary conditions for a $4$-RGDD of type $h^{u}$,
+\[
+u\ge 4,\qquad hu\equiv 0 \pmod 4,\qquad h(u-1)\equiv 0\pmod 3,
+\]
+are sufficient except for $(h,u)\in\{(2,4),(2,10),(3,4),(6,4)\}$ and a finite list of
+possible exceptions; for $h=10$ the possible exceptions are $u\in\{4,94\}$
+\cite[Theorem~5.2]{WG17}.  A $4$-RGDD of type $10^{4}$ has
+\[
+v=40 \text{ points},\qquad b=100 \text{ blocks},\qquad r=10 \text{ parallel classes of } 10 \text{ blocks each},
+\]
+and it satisfies the necessary conditions ($40\equiv 0 \pmod 4$, $30\equiv 0\pmod 3$).
+
+\medskip\noindent
+\textbf{The task and its outcome.}
+The request was to construct such a design directly --- equivalently, three pairwise
+orthogonal Latin squares of order $10$ --- and, if that could not be done, to give a
+proof.  \textbf{No such design is constructed here, and no proof of non-existence is
+given.}  By Theorem~\ref{thm:equiv} either one would decide whether $N(10)\ge 3$,
+one of the best-known open problems about Latin squares
+(``It is unknown if $N(10)\ge 3$, and determining the value of $N(10)$ is one of the
+most prominent unsolved problems concerning MOLS'' \cite[Section~1]{BKS26}).
+We do not present heuristic arguments as proofs.  What can be proved, and what we
+found, is organised as follows:
+Section~\ref{sec:equiv} proves the equivalence;
+Section~\ref{sec:known} summarises what is known about three MOLS$(10)$ and explains why
+we cannot supply a proof either way;
+Section~\ref{sec:obstr} proves two obstructions relevant to direct constructions;
+Section~\ref{sec:near} gives explicit, verified near misses;
+Section~\ref{sec:search} describes our computer search.
+The script \texttt{verify\_10\_4.py} checks every object printed here from the
+definitions, and can check any candidate triple of squares.
+
+\section{Definitions and the equivalence}\label{sec:equiv}
+
+Throughout $[g]=\{0,1,\dots,g-1\}$.
+A \emph{$k$-GDD of type $g^{u}$} is a triple $(X,\mathcal G,\mathcal B)$ where $X$ is a set
+of $gu$ points, $\mathcal G$ is a partition of $X$ into $u$ \emph{groups} of size $g$,
+and $\mathcal B$ is a set of $k$-subsets of $X$ (\emph{blocks}) such that every pair of
+points from distinct groups lies in exactly one block and no block contains two points
+of the same group.  A \emph{parallel class} is a set of blocks partitioning $X$; the
+GDD is \emph{resolvable} (a $k$-RGDD) if $\mathcal B$ can be partitioned into parallel
+classes.  A $\TD(k,g)$ is a $k$-GDD of type $g^{k}$, and an $\RTD(k,g)$ is a resolvable
+one.
+
+A \emph{Latin square} of order $g$ is a $g\times g$ array with entries in $[g]$ in which
+every symbol occurs once in each row and once in each column.  Latin squares $A$ and $B$
+are \emph{orthogonal} ($A\perp B$) if the $g^{2}$ ordered pairs $(A(i,j),B(i,j))$ are
+distinct; MOLS are pairwise orthogonal Latin squares, and $N(g)$ is the largest number
+of MOLS of order $g$.  A \emph{transversal} of $A$ is a set of $g$ cells containing
+one cell of each row and each column and each symbol once; a \emph{common transversal}
+of $A$ and $B$ is a transversal of both.  If $A\perp B$ then each symbol class
+$\{(i,j):B(i,j)=s\}$ is a transversal of $A$; conversely every partition of the cells
+into $g$ transversals of $A$ defines (after labelling the transversals by $[g]$) a
+Latin square orthogonal to $A$, an \emph{orthogonal mate} of $A$.
+
+\begin{lemma}\label{lem:td}
+In a $4$-GDD of type $g^{4}$ (that is, a $\TD(4,g)$) every block meets every group in
+exactly one point and there are exactly $g^{2}$ blocks.  Every parallel class has $g$
+blocks, and a resolution has $g$ parallel classes.
+\end{lemma}
+
+\begin{proof}
+A block has four points, no two in one group, and there are four groups.  Each block
+contains $\binom42=6$ pairs from distinct groups; there are $6g^{2}$ such pairs and each
+lies in exactly one block.  A parallel class covers the $4g$ points by blocks of size $4$.
+\end{proof}
+
+\begin{theorem}\label{thm:equiv}
+Let $g\ge 2$.  A $4$-RGDD of type $g^{4}$ exists if and only if there are three MOLS of
+order $g$, if and only if a $\TD(5,g)$ exists.  Explicitly: let $A,B,C$ be MOLS of order
+$g$, let
+\[
+X=\{r_i,\;c_i,\;x_i,\;y_i : i\in[g]\}
+\]
+with the four groups $\{r_i\}$, $\{c_i\}$, $\{x_i\}$, $\{y_i\}$, and for every cell
+$(i,j)$ let
+\[
+\beta_{ij}=\{\,r_i,\;c_j,\;x_{A(i,j)},\;y_{B(i,j)}\,\}.
+\]
+Then the blocks $\beta_{ij}$ form a $4$-GDD of type $g^{4}$, and the sets
+$\mathcal P_s=\{\beta_{ij}: C(i,j)=s\}$, $s\in[g]$, form a resolution of it.  Every
+$4$-RGDD of type $g^{4}$ arises in this way.
+\end{theorem}
+
+\begin{proof}
+\emph{From squares to the design.}  The pair $\{r_i,c_j\}$ lies only in $\beta_{ij}$;
+the pair $\{r_i,x_s\}$ lies in $\beta_{ij}$ exactly when $A(i,j)=s$, which happens for
+exactly one $j$ because row $i$ of $A$ contains $s$ once; the same argument with
+columns and with $B$ handles $\{c_j,x_s\}$, $\{r_i,y_t\}$, $\{c_j,y_t\}$; and
+$\{x_s,y_t\}$ lies in $\beta_{ij}$ exactly when $(A(i,j),B(i,j))=(s,t)$, which happens
+once because $A\perp B$.  No block contains two points of a group.  The cells with
+$C(i,j)=s$ form a common transversal of $A$ and $B$: one cell in each row and column
+because $C$ is Latin, and each symbol of $A$ (of $B$) once because $C\perp A$
+($C\perp B$).  Hence the blocks of $\mathcal P_s$ contain each $r_i$, $c_j$, $x_s$, $y_t$
+exactly once, i.e.\ $\mathcal P_s$ is a parallel class, and the $\mathcal P_s$ partition
+the blocks.
+
+\emph{From the design to squares.}  Let $(X,\mathcal G,\mathcal B)$ be a $4$-RGDD of type
+$g^{4}$; name the groups and their points $\{r_i\},\{c_j\},\{x_s\},\{y_t\}$ and the
+parallel classes $\mathcal P_0,\dots,\mathcal P_{g-1}$ (Lemma~\ref{lem:td}).  By
+Lemma~\ref{lem:td} the unique block through $r_i$ and $c_j$ has the form
+$\{r_i,c_j,x_s,y_t\}$; put $A(i,j)=s$, $B(i,j)=t$ and let $C(i,j)$ be the index of the
+parallel class containing that block.  The pair conditions for $\{r_i,x_s\}$ and
+$\{c_j,x_s\}$ say that $A$ is Latin, likewise for $B$, and the condition for
+$\{x_s,y_t\}$ says $A\perp B$.  A parallel class contains each $r_i$ and each $c_j$
+once, so $C$ is Latin, and it contains each $x_s$ and each $y_t$ once, so the pairs
+$(A,C)$ and $(B,C)$ take every value once: $C\perp A$ and $C\perp B$.
+
+\emph{$\TD(5,g)$.}  Given a resolution $\mathcal P_0,\dots,\mathcal P_{g-1}$, adjoin a fifth
+group $\{\infty_0,\dots,\infty_{g-1}\}$ and add $\infty_s$ to every block of $\mathcal P_s$;
+since $\mathcal P_s$ partitions $X$, every pair $\{z,\infty_s\}$ lies in exactly one block,
+so this is a $\TD(5,g)$.  Conversely, in a $\TD(5,g)$ the blocks through a point $\infty_s$
+of the fifth group, with $\infty_s$ removed, form a parallel class of the $\TD(4,g)$ obtained
+by deleting that group, and these classes partition its blocks.
+\end{proof}
+
+\begin{corollary}\label{cor:types}
+For $g\ge 2$ a $4$-RGDD of type $g^{4}$ exists if and only if $N(g)\ge 3$.  As $N(2)=1$,
+$N(3)=2$, $N(6)=1$ (Tarry \cite{Tar1900}) and $N(g)\ge 3$ for every other $g\ne 10$
+(\cite{ACD07}; consistently, \cite[Theorem~5.2]{WG17} lists $g=10$ as the only possible
+exception of type $g^{4}$), such a design exists
+for all $g\notin\{2,3,6,10\}$ and does not exist for
+$g\in\{2,3,6\}$ --- exactly the pattern of exceptions $(2,4),(3,4),(6,4)$ and possible
+exception $(10,4)$ in \cite{WG14,WG17}.  For $g=10$ the question is equivalent to $N(10)\ge 3$.
+\end{corollary}
+
+\begin{corollary}\label{cor:gdd}
+Every $4$-GDD of type $10^{4}$ is the design $\{\beta_{ij}\}$ of a pair of orthogonal
+Latin squares $(A,B)$ of order $10$ (such pairs exist \cite{Par59,BSP60}), and its
+parallel classes are exactly the sets $\{\beta_{ij}:(i,j)\in T\}$ with $T$ a common
+transversal of $A$ and $B$.  Hence a $4$-GDD of type $10^{4}$ is resolvable if and only
+if the $100$ cells can be partitioned into $10$ common transversals of $A$ and $B$.
+\end{corollary}
+
+\begin{proof}
+The first statement is the second part of the proof of Theorem~\ref{thm:equiv}, which
+does not use the resolution to define $A$ and $B$.  The blocks over a set $T$ of cells
+contain every point exactly once if and only if $T$ is a common transversal.
+\end{proof}
+
+So $4$-GDDs of type $10^{4}$ exist in abundance; the entire difficulty is resolvability.
+
+\section{What is known, and why we cannot give a proof}\label{sec:known}
+
+\paragraph{Bounds.}  $N(10)\ge 2$: Parker \cite{Par59} found two orthogonal Latin squares
+of order $10$ (see also \cite{BS59,BSP60}).  $N(10)\le 6$: there is no projective
+plane of order $10$ \cite{LTS89} (see also the independent searches
+\cite{Roy11,BCSKG21}), so $N(10)<9$, and together with a completion result for nets due
+to Bruck \cite{Bru63} this gives $N(10)\le 6$, the best known upper bound
+\cite[Section~2.4]{BKS26}, \cite{DH14}.
+
+\paragraph{Partial non-existence results.}  Each of the following excludes triples
+of MOLS$(10)$ with a special structure (statements as summarised in \cite{BKS26}).
+\begin{itemize}
+\item Mann \cite{Man44}: a Latin square of order $10$ with a $5\times 5$ Latin subsquare
+  has no orthogonal mate (Proposition~\ref{prop:mann} below).
+\item Parker \cite{Par62}: two orthogonal Latin squares of order $10$ with orthogonal
+  $3\times 3$ Latin subsquares cannot be part of an orthogonal triple.
+\item McKay, Meynert and Myrvold \cite{MMM07}: every Latin square in a triple of
+  MOLS$(10)$ has trivial symmetry group.
+\item Myrvold \cite{Myr99}, Bright, Keita and Stevens \cite{BKS26}: if one square of a
+  triple has a $4\times 4$ Latin subsquare, the other two fall into one of $28$
+  ``mate pattern type pairs''; Myrvold excluded $20$ of them, and \cite{BKS26}
+  re-verified this with a SAT solver and found orthogonal pairs in all eight remaining
+  cases, so those cases cannot be excluded by looking at pairs alone.
+\item Gill and Wanless \cite{GW23}: the rank of the code generated by any pair of squares
+  of a triple of MOLS$(10)$ is exactly $37$; see also Delisle \cite{Del10} and Dukes and
+  Howard \cite{DH14}.
+\item Zaikin, Vatutin and Bright \cite{ZVB25}: no extended self-orthogonal diagonal Latin
+  square of order $10$ lies in an orthogonal triple.
+\end{itemize}
+
+\paragraph{Near misses.}  Brouwer \cite{Bro84}: four MOLS of order $10$ with a common
+hole of order $2$, i.e.\ a $\TD(6,10)-\TD(6,2)$ (Section~\ref{sec:brouwer}).
+Egan and Wanless \cite{EW16}: squares $L_1,L_2,L_3$ of order $10$ with
+$L_1\perp L_2$, $L_1\perp L_3$ and $91$ of the $100$ ordered pairs distinct when
+$L_2$ and $L_3$ are superimposed; hence $L_1$ and $L_2$ have seven pairwise disjoint common transversals, improving
+the four of Brown, Hedayat and Parker \cite{BHP93} (Section~\ref{sec:ew}).  Zaikin and Kochemazov \cite{ZK15}: three
+diagonal Latin squares of order $10$ satisfying the orthogonality condition on a common
+set of $73$ cells.
+
+\paragraph{Why we cannot give a proof.}
+\begin{enumerate}
+\item By Theorem~\ref{thm:equiv}, a proof that no $4$-RGDD of type $10^{4}$ exists is a
+  proof that $N(10)=2$, and a construction proves $N(10)\ge 3$.  Either would settle the
+  open problem above.  We have neither.
+\item All the standard necessary conditions are satisfied: the divisibility conditions
+  hold, the underlying $4$-GDD of type $10^{4}$ exists (Corollary~\ref{cor:gdd}), and so
+  do incomplete versions with a small hole (Section~\ref{sec:brouwer}).  Non-existence
+  therefore cannot follow from these conditions.
+\item The proof that $N(10)<9$ \cite{LTS89} relies on the binary code of a projective
+  plane and still needed a very large computation.  The methods behind the partial
+  results above (symmetry, subsquares, codes of pairs) each exclude only special
+  configurations.
+\item A naive exhaustive search would test one square from each of the
+  $34{,}817{,}397{,}894{,}749{,}939$ main classes of Latin squares of order $10$
+  \cite{MMM07}.  (Membership in a triple is a main-class invariant: a square is a
+  component of a triple if and only if its $\TD(3,10)$ extends to a $\TD(5,10)$, and this
+  does not depend on which of its three groups are called rows, columns and symbols.)
+  At the speed of our own complete test (about $27$ squares per second per core,
+  Section~\ref{sec:search}) this would take about $4.1\times 10^{7}$ core-years.
+\end{enumerate}
+
+\section{Two obstructions with complete proofs}\label{sec:obstr}
+
+\begin{proposition}[Mann \cite{Man44}]\label{prop:mann}
+A Latin square of order $4t+2$ containing a Latin subsquare of order $2t+1$ has no
+transversal.  In particular no Latin square of order $10$ with a $5\times 5$ Latin
+subsquare has an orthogonal mate, so none can be one of the squares $A,B,C$ of
+Theorem~\ref{thm:equiv}.
+\end{proposition}
+
+\begin{proof}
+Let the subsquare occupy rows $R$ and columns $K$ with symbol set $S$,
+$|R|=|K|=|S|=m=2t+1$, and let bars denote complements ($|\bar R|=|\bar K|=|\bar S|=m$).
+Rows in $R$ carry the symbols of $S$ in the columns $K$, hence the symbols of
+$\bar S$ in the columns $\bar K$; likewise columns in $K$ carry $\bar S$ in the rows
+$\bar R$; consequently the cells $\bar R\times\bar K$ carry only symbols of $S$.  Let $T$
+be a transversal and let $a,b,d$ be the numbers of its cells in $R\times K$,
+$R\times\bar K$, $\bar R\times\bar K$.  Counting the cells of $T$ in the rows $R$, in the
+columns $\bar K$, and those with a symbol in $S$ gives
+\[
+a+b=m,\qquad b+d=m,\qquad a+d=m .
+\]
+The first and third give $b=d$, and then $2b=m$, which is impossible since $m$ is odd.
+\end{proof}
+
+A \emph{complete mapping} of a group $H$ is a bijection $\theta\colon H\to H$ such that
+$x\mapsto x\theta(x)$ is also a bijection; equivalently the cells $(x,\theta(x))$ form a
+transversal of the Cayley table $(x,y)\mapsto xy$.
+
+\begin{proposition}\label{prop:cm}
+No group of order $10$ has a complete mapping.
+\end{proposition}
+
+\begin{proof}
+A group $H$ of order $10$ has a normal subgroup $N$ of order $5$ (its Sylow $5$-subgroup);
+let $\varepsilon\colon H\to H/N\cong\Z_2$, written additively.  If $\theta$ were a complete
+mapping, then summing $\varepsilon(x\theta(x))=\varepsilon(x)+\varepsilon(\theta(x))$ over
+$x\in H$ would give $\sum_{y\in H}\varepsilon(y)=2\sum_{y\in H}\varepsilon(y)$ in $\Z_2$,
+because $x\mapsto x\theta(x)$ and $\theta$ are bijections.  But
+$\sum_{y\in H}\varepsilon(y)=|H\setminus N|=5\equiv 1$, a contradiction.  (This is a special
+case of the Hall--Paige theorem \cite{HP55}.)
+\end{proof}
+
+\begin{lemma}\label{lem:dm}
+Let $(X,\{G_1,G_2,G_3\},\mathcal B)$ be a $\TD(3,m)$ and let $H$ be a group of order $m$
+acting on it by automorphisms that map each $G_i$ onto itself and act regularly on each
+$G_i$.  Then $H$ has a complete mapping.
+\end{lemma}
+
+\begin{proof}
+Fix $p_i\in G_i$ and write $(h,i)$ for the point $h(p_i)$; so $g\in H$ maps $(h,i)$ to
+$(gh,i)$.  For $a\in H$ let $\{(1,1),(a,2),(\theta(a),3)\}$ be the block through $(1,1)$ and
+$(a,2)$.  The map $\theta$ is injective, because the pair $\{(1,1),(\theta(a),3)\}$ lies in
+only one block, hence bijective.  Every block contains exactly one point $(h,1)$, and
+$h^{-1}$ maps it to a block through $(1,1)$; so the blocks are exactly
+$\{(h,1),(ha,2),(h\theta(a),3)\}$ for $h,a\in H$.  The pair $\{(y,2),(z,3)\}$ lies in the
+block with parameters $(h,a)$ if and only if $h=ya^{-1}$ and $a^{-1}\theta(a)=y^{-1}z$.
+Since every such pair lies in exactly one block, $a\mapsto a^{-1}\theta(a)$ is a
+bijection.  With $\sigma(x)=\theta(x^{-1})$ we get $x\sigma(x)=a^{-1}\theta(a)$ for
+$a=x^{-1}$, so $\sigma$ is a complete mapping.
+\end{proof}
+
+\begin{corollary}\label{cor:aut}
+\begin{enumerate}
+\item[(a)] No $4$-GDD of type $10^{4}$, resolvable or not, admits a group $H$ of order $10$
+  of automorphisms that maps three of its groups onto themselves and acts regularly on
+  each of them.  In particular no $\TD(k,10)$ with $k\ge 3$, and so no $4$-RGDD of type
+  $10^{4}$, comes from a $(10,k;1)$-difference matrix over a group of order $10$
+  (compare \cite[Lemma~2.8]{WG14}, which gives such transversal designs with $k=2$ only).
+\item[(b)] No $4$-GDD of type $10^{4}$ admits an abelian group of automorphisms acting
+  regularly on its $40$ points.  In particular none is cyclic, and none is obtained by
+  developing base blocks under a regular action of one of the abelian groups of order
+  $40$, namely $\Z_{40}$, $\Z_{20}\times\Z_2\cong\Z_{10}\times\Z_4$ and
+  $\Z_{10}\times\Z_2^{2}$.
+\item[(c)] If $G$ is any group of automorphisms of a $4$-GDD of type $10^{4}$ acting
+  regularly on the $40$ points, then the kernel $K$ of the action of $G$ on the four
+  groups has order $5$ and $G/K$ is dihedral of order $8$, acting on the four groups as
+  the symmetry group of a square.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+An automorphism maps groups onto groups, since two points lie in a common group if and
+only if no block contains both.
+(a) Deleting a fourth group gives a $\TD(3,10)$ to which Lemma~\ref{lem:dm} applies,
+contradicting Proposition~\ref{prop:cm}.  A $(10,k;1)$-difference matrix over $H$
+yields a $\TD(k,10)$ on which $H$ acts by translation, fixing every group and regularly
+on each.
+(b), (c) Let $G$ act regularly; then it acts transitively on the four groups.  Let
+$\Gamma$ be the group containing a point $p_0$ and $H$ its stabiliser, so $|H|=10$, $H$
+acts regularly on $\Gamma$, and the kernel $K$ of the action on the groups is the
+largest normal subgroup of $G$ contained in $H$.  Now $G/K$ embeds in $S_4$ and is
+transitive on four objects, so $|G/K|$ is a multiple of $4$ dividing $\gcd(40,24)=8$.  If
+$|G/K|=4$ then $K=H$ fixes every group and acts on each freely, hence regularly, which
+(a) forbids.  So $|K|=5$ and $|G/K|=8$; the only subgroups of order $8$ of $S_4$ are its
+Sylow $2$-subgroups, dihedral of order $8$.  If $G$ is abelian then $H$ is normal, so
+$K=H$, which is impossible; this proves (b).
+\end{proof}
+
+\begin{remark}\label{rem:mmm}
+Combined with the computer-assisted theorem of \cite{MMM07} quoted in
+Section~\ref{sec:known} (every square of a triple of MOLS$(10)$ has trivial symmetry
+group), much more follows.  Let $\varphi\ne 1$ be an automorphism of the $4$-GDD
+underlying a $4$-RGDD of type $10^{4}$ (the resolution need not be preserved) that maps
+each of the four groups onto itself.  Then $\varphi$ permutes the rows,
+the columns and the symbols of the square $A$ of Theorem~\ref{thm:equiv} and maps the
+block of cell $(i,j)$ to the block of the image cell, so it induces an autotopism of $A$;
+this autotopism is non-trivial, since otherwise $\varphi$ would fix every block through
+every pair $r_i,c_j$ and hence every point.  As $A$ is a component of a triple, this
+contradicts \cite{MMM07}.  So \emph{every non-identity automorphism of a $4$-RGDD of type
+$10^{4}$ moves at least one of its groups}; in particular the subgroup $K$ in (c) cannot
+exist, and \emph{no $4$-RGDD of type $10^{4}$ admits a point-regular automorphism group}.
+These two statements rest on the computation of \cite{MMM07}, which we have not repeated.
+\end{remark}
+
+\section{Explicit near misses (verified)}\label{sec:near}
+
+\subsection{\texorpdfstring{An incomplete $4$-RGDD of type $10^{4}$ with a hole of type $2^{4}$}{An incomplete 4-RGDD of type 10\textasciicircum 4 with a hole of type 2\textasciicircum 4}}\label{sec:brouwer}
+
+Brouwer \cite{Bro84} gave four MOLS of order $10$ with a common hole of order $2$
+(Figure~\ref{fig:brouwer}, transcribed from \cite[Fig.~1]{Bro84}; entry $ijkl$ in cell
+$(r,c)$ means that the four squares have symbols $i,j,k,l$ there; rows and columns are
+numbered $0,\dots,9$, the hole is $\{8,9\}\times\{8,9\}$, and the hole symbols are $8,9$).
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{*{10}{c}}
+5039 & 8225 & 4568 & 9753 & 6812 & 0390 & 2487 & 7976 & 3141 & 1604\\
+9460 & 6109 & 8336 & 5678 & 4947 & 7823 & 1091 & 3584 & 0252 & 2715\\
+6748 & 9571 & 7219 & 8007 & 0685 & 5954 & 4830 & 2192 & 1363 & 3426\\
+8114 & 7458 & 9642 & 4329 & 3293 & 1786 & 6965 & 5801 & 2070 & 0537\\
+2856 & 4794 & 6083 & 3932 & 1479 & 8661 & 0128 & 9317 & 7505 & 5240\\
+0903 & 3867 & 5495 & 7180 & 9024 & 2549 & 8772 & 1238 & 4616 & 6351\\
+4281 & 1910 & 0874 & 6596 & 2308 & 9135 & 3659 & 8443 & 5727 & 7062\\
+7697 & 5382 & 2921 & 1845 & 8550 & 3018 & 9206 & 0769 & 6434 & 4173\\
+1522 & 2633 & 3700 & 0411 & 5166 & 6277 & 7344 & 4055 & --   & --  \\
+3375 & 0046 & 1157 & 2264 & 7731 & 4402 & 5513 & 6620 & --   & --
+\end{tabular}
+\caption{Four MOLS of order $10$ with a hole of order $2$ (Brouwer \cite{Bro84}).}
+\label{fig:brouwer}
+\end{figure}
+
+\begin{proposition}\label{prop:irgdd}
+Let $A,B,C$ be the first three of the squares in Figure~\ref{fig:brouwer}, defined on the
+$96$ cells outside the hole.  With $X$ and $\beta_{ij}$ as in Theorem~\ref{thm:equiv} and
+\[
+Y=\{r_8,r_9,c_8,c_9,x_8,x_9,y_8,y_9\},
+\]
+the $96$ blocks $\beta_{ij}$ have the following properties.
+\begin{enumerate}
+\item[(i)] Every pair of points from distinct groups that are not both in $Y$ lies in
+  exactly one block, no pair inside $Y$ lies in a block, and every block meets $Y$ in at
+  most one point.  (This is a $4$-IGDD of type $(10,2)^{4}$ in the notation of
+  \cite{WG14}.)
+\item[(ii)] For $s\in\{0,\dots,7\}$ the blocks of the cells with $C(i,j)=s$ form a parallel
+  class ($10$ blocks); for $s\in\{8,9\}$ they form a holey parallel class ($8$ blocks
+  partitioning $X\setminus Y$).  So the design is a $4$-IRGDD of type $(10,2)^{4}$.
+\item[(iii)] The hole cannot be filled: there is no set of blocks of size $4$ which,
+  added to these $96$ blocks, yields a $4$-GDD of type $10^{4}$, let alone a $4$-RGDD.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i) and (ii) say that $A,B,C$ are incomplete MOLS with a common hole (every row and
+column outside the hole contains every symbol once, the rows and columns of the hole
+contain each of $0,\dots,7$ once outside the hole, and each pair of squares shows every
+ordered pair of symbols not both in $\{8,9\}$ exactly once); the argument of
+Theorem~\ref{thm:equiv} translates this into (i) and (ii).  All of this is checked by
+\texttt{verify\_10\_4.py}, which in fact verifies that all four squares form a
+$\TD(6,10)-\TD(6,2)$.
+(iii) The pairs not yet covered are exactly the $24$ pairs of points of $Y$ in distinct
+groups.  An added block may contain no pair that is already covered, so all its points
+lie in $Y$; hence the added blocks would form a $4$-GDD of type $2^{4}$ on $Y$.  By the
+second part of the proof of Theorem~\ref{thm:equiv} (with $g=2$) such a design gives two
+orthogonal Latin squares of order $2$, which do not exist (see also \cite{BSH77}).
+\end{proof}
+
+Thus a resolvable design on $40$ points that agrees with a $4$-RGDD of type $10^{4}$ on
+all but the $4$ blocks inside an $8$-point hole exists, and the standard ``filling in
+holes'' construction fails here only because $N(2)=1$.  No other incomplete design can
+do better:
+
+\begin{proposition}\label{prop:holes}
+Let $1\le h\le 9$ and suppose that a $4$-IRGDD of type $(10,h)^{4}$ exists, with hole $Y$
+($|Y|=4h$).  Then:
+\begin{enumerate}
+\item[(i)] $h\le 2$;
+\item[(ii)] if $h=2$, no set of blocks can be added to obtain a $4$-GDD of type $10^{4}$;
+\item[(iii)] if $h=1$, adding $Y$ as a block gives a $4$-RGDD of type $10^{4}$.
+\end{enumerate}
+So the ``filling in holes'' approach can only produce a $4$-RGDD of type $10^{4}$ from a
+design that is already one with a block removed.
+\end{proposition}
+
+\begin{proof}
+A point of $Y$ forms a pair with each of the $3(10-h)$ points outside $Y$ and outside its
+own group, and every block through it contains three of these (a block meets $Y$ at most
+once); so it lies in $10-h\ge 1$ blocks, all of them in (full) parallel classes, since
+the holey ones avoid $Y$.  Likewise a point outside $Y$ lies in $10$ blocks, one in each
+parallel class and one in each holey parallel class; hence there are $10-h$ parallel and
+$h$ holey parallel classes.  A parallel class has $10$ blocks, each meeting $Y$ in at most
+one point, and it covers the $4h$ points of $Y$; so $4h\le 10$, which is (i).
+(ii) is the argument of Proposition~\ref{prop:irgdd}(iii), which used only the hole.
+(iii) If $h=1$ the uncovered pairs are the six pairs inside the $4$-set $Y$, which meets
+every group once, so $Y$ can be added as a block; added to the unique holey parallel
+class, it completes a parallel class.
+\end{proof}
+
+\subsection{The near triple of Egan and Wanless}\label{sec:ew}
+
+Egan and Wanless \cite[Section~8]{EW16} examined the Latin squares of order $10$ with an
+autoparatopism group of order at least $3$ (catalogued in \cite{MMM07}) and found the
+squares $A,B,C$ of Figure~\ref{fig:ew}, which are closer to a triple of MOLS than any
+previously published example.
+
+\begin{figure}[ht]
+\centering
+\setlength{\arraycolsep}{2.6pt}
+$\begin{array}{*{10}{c}@{\hspace{2em}}*{10}{c}@{\hspace{2em}}*{10}{c}}
+0 & 8 & 9 & 7 & 5 & 6 & 4 & 2 & 3 & 1 & 0 & 7 & 8 & 9 & 1 & 2 & 3 & 4 & 5 & 6 & 0 & 7 & 8 & 9 & 1 & 2 & 3 & 4 & 5 & 6\\
+9 & 1 & 4 & 6 & 2 & 7 & 3 & 8 & 0 & 5 & 9 & 0 & 6 & 1 & 8 & 3 & 2 & 5 & 4 & 7 & 6 & 4 & 2 & 8 & 9 & 5 & 1 & 3 & 7 & 0\\
+7 & 4 & 2 & 5 & 1 & 3 & 8 & 6 & 9 & 0 & 7 & 2 & 0 & 4 & 3 & 9 & 1 & 8 & 6 & 5 & 4 & 9 & 5 & 3 & 2 & 7 & 6 & 0 & 1 & 8\\
+8 & 6 & 5 & 3 & 9 & 2 & 1 & 0 & 4 & 7 & 8 & 5 & 3 & 0 & 2 & 1 & 7 & 6 & 9 & 4 & 5 & 1 & 7 & 6 & 4 & 3 & 8 & 9 & 0 & 2\\
+6 & 2 & 1 & 8 & 4 & 0 & 9 & 5 & 7 & 3 & 6 & 9 & 5 & 3 & 0 & 7 & 4 & 2 & 1 & 8 & 3 & 2 & 9 & 0 & 7 & 1 & 5 & 6 & 8 & 4\\
+4 & 9 & 3 & 2 & 7 & 5 & 0 & 1 & 6 & 8 & 4 & 1 & 7 & 6 & 5 & 0 & 8 & 9 & 3 & 2 & 1 & 0 & 3 & 7 & 6 & 8 & 2 & 5 & 4 & 9\\
+5 & 3 & 7 & 1 & 0 & 8 & 6 & 9 & 2 & 4 & 5 & 4 & 2 & 8 & 9 & 6 & 0 & 3 & 7 & 1 & 2 & 8 & 0 & 1 & 3 & 4 & 9 & 7 & 6 & 5\\
+3 & 5 & 0 & 9 & 8 & 4 & 2 & 7 & 1 & 6 & 3 & 6 & 1 & 7 & 4 & 8 & 5 & 0 & 2 & 9 & 9 & 5 & 4 & 2 & 8 & 6 & 0 & 1 & 3 & 7\\
+1 & 7 & 6 & 0 & 3 & 9 & 5 & 4 & 8 & 2 & 1 & 8 & 4 & 2 & 6 & 5 & 9 & 7 & 0 & 3 & 7 & 3 & 6 & 5 & 0 & 9 & 4 & 8 & 2 & 1\\
+2 & 0 & 8 & 4 & 6 & 1 & 7 & 3 & 5 & 9 & 2 & 3 & 9 & 5 & 7 & 4 & 6 & 1 & 8 & 0 & 8 & 6 & 1 & 4 & 5 & 0 & 7 & 2 & 9 & 3\\
+\end{array}$
+\caption{The squares $A$ (left), $B$ (middle), $C$ (right) of Egan and Wanless
+\cite[Section~8]{EW16}.}
+\label{fig:ew}
+\end{figure}
+
+\begin{proposition}\label{prop:ew}
+For the squares of Figure~\ref{fig:ew}:
+\begin{enumerate}
+\item[(i)] $A\perp B$, $A\perp C$, and superimposing $B$ and $C$ gives $91$ distinct
+  ordered pairs; every repeated pair has $C$-symbol $7$, $8$ or $9$ \cite{EW16}.
+\item[(ii)] Consequently the $4$-GDD of type $10^4$ of the pair $(A,B)$
+  (Theorem~\ref{thm:equiv}) contains the seven pairwise disjoint parallel classes
+  $\mathcal P_s=\{\beta_{ij}: C(i,j)=s\}$, $s=0,\dots,6$; the remaining $30$ blocks contain
+  every point exactly three times.
+\item[(iii)] $A$ and $B$ have exactly $14$ common transversals, and at most $7$ of them are
+  pairwise disjoint.  So this $4$-GDD has $14$ parallel classes, no eight of them are
+  pairwise disjoint, and the $30$ remaining blocks of (ii) cannot be split into three
+  parallel classes: the design is three parallel classes short of a $4$-RGDD of type
+  $10^4$.
+\item[(iv)] $A$ has exactly $1080$ transversals and $305$ orthogonal mates, and for none of
+  them, $M$ say, is there a Latin square orthogonal to both $A$ and $M$; so $A$ is not a
+  component of a triple, as already known from \cite{MMM07,EW16}; the same holds for $B$
+  ($932$ transversals, $5$ mates) and $C$ ($864$ transversals, $4$ mates).  Over all pairs
+  of mates of $A$, $91$ is the largest number of distinct ordered pairs.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i)--(iii) are checked by \texttt{verify\_10\_4.py} from the definitions (for (iii) it
+enumerates all common transversals and finds a largest set of pairwise disjoint ones).
+For (ii): $C\perp A$, and the classes of the symbols $0,\dots,6$ of $C$ contain no repeated
+pair, so they are common transversals of $A$ and $B$; each point lies in $10$ blocks, seven
+of them in these classes.  (iv) is the complete test of Section~\ref{sec:search}.
+\end{proof}
+
+In the language of designs, this is the best known approximation to a $4$-RGDD of type
+$10^4$ that we are aware of: a $4$-GDD of type $10^4$ with seven pairwise disjoint
+parallel classes (Brown, Hedayat and Parker \cite{BHP93} had four).
+
+\subsection{A pair of orthogonal Latin squares from our search}\label{sec:ourpair}
+
+The best pair found by our search (Section~\ref{sec:search}) is shown in
+Figure~\ref{fig:ourpair}: two orthogonal Latin squares $A,B$ of order $10$ and, in the
+third array, 3 pairwise disjoint common transversals of $A$ and $B$ (cells marked
+$0,\dots,2$).
+
+\begin{figure}[ht]
+\centering
+\setlength{\arraycolsep}{2.6pt}
+$\begin{array}{*{10}{c}@{\hspace{2em}}*{10}{c}@{\hspace{2em}}*{10}{c}}
+7 & 2 & 1 & 4 & 5 & 8 & 6 & 9 & 0 & 3 & 5 & 6 & 2 & 4 & 1 & 7 & 3 & 8 & 9 & 0 & \cdot & \cdot & \cdot & \cdot & 0 & 1 & \cdot & \cdot & 2 & \cdot\\
+3 & 4 & 5 & 0 & 8 & 6 & 9 & 7 & 1 & 2 & 7 & 5 & 9 & 1 & 6 & 2 & 0 & 4 & 8 & 3 & \cdot & \cdot & \cdot & 1 & \cdot & 2 & \cdot & \cdot & \cdot & 0\\
+6 & 5 & 8 & 3 & 9 & 2 & 0 & 1 & 7 & 4 & 4 & 7 & 0 & 2 & 9 & 1 & 5 & 3 & 6 & 8 & \cdot & \cdot & 2 & \cdot & \cdot & \cdot & \cdot & \cdot & 0 & 1\\
+1 & 3 & 4 & 7 & 2 & 9 & 8 & 0 & 6 & 5 & 9 & 8 & 7 & 3 & 4 & 5 & 2 & 0 & 1 & 6 & 1 & 0 & \cdot & \cdot & \cdot & \cdot & \cdot & \cdot & \cdot & 2\\
+9 & 1 & 3 & 8 & 0 & 7 & 5 & 2 & 4 & 6 & 2 & 1 & 6 & 8 & 3 & 9 & 4 & 7 & 0 & 5 & 0 & \cdot & \cdot & \cdot & \cdot & \cdot & 1 & 2 & \cdot & \cdot\\
+2 & 0 & 9 & 6 & 7 & 3 & 1 & 4 & 5 & 8 & 0 & 2 & 3 & 7 & 8 & 4 & 6 & 1 & 5 & 9 & \cdot & \cdot & 1 & 0 & 2 & \cdot & \cdot & \cdot & \cdot & \cdot\\
+8 & 9 & 2 & 5 & 1 & 0 & 4 & 6 & 3 & 7 & 1 & 4 & 5 & 0 & 7 & 8 & 9 & 6 & 3 & 2 & \cdot & 2 & \cdot & \cdot & \cdot & \cdot & 0 & 1 & \cdot & \cdot\\
+5 & 8 & 0 & 1 & 6 & 4 & 7 & 3 & 2 & 9 & 8 & 3 & 4 & 5 & 0 & 6 & 7 & 9 & 2 & 1 & \cdot & \cdot & 0 & 2 & \cdot & \cdot & \cdot & \cdot & 1 & \cdot\\
+0 & 7 & 6 & 2 & 4 & 5 & 3 & 8 & 9 & 1 & 6 & 0 & 8 & 9 & 2 & 3 & 1 & 5 & 7 & 4 & \cdot & 1 & \cdot & \cdot & \cdot & \cdot & 2 & 0 & \cdot & \cdot\\
+4 & 6 & 7 & 9 & 3 & 1 & 2 & 5 & 8 & 0 & 3 & 9 & 1 & 6 & 5 & 0 & 8 & 2 & 4 & 7 & 2 & \cdot & \cdot & \cdot & 1 & 0 & \cdot & \cdot & \cdot & \cdot\\
+\end{array}$
+\caption{Orthogonal Latin squares $A$ (left) and $B$ (middle) of order $10$, and 3
+pairwise disjoint common transversals of $A$ and $B$ (right).}
+\label{fig:ourpair}
+\end{figure}
+
+\begin{proposition}\label{prop:ourpair}
+For the squares of Figure~\ref{fig:ourpair}, the $100$ blocks $\beta_{ij}$ of
+Theorem~\ref{thm:equiv} form a $4$-GDD of type $10^{4}$ with 3 pairwise disjoint parallel
+classes (the cells marked $0,\dots,2$).  The squares $A$ and $B$ have exactly
+3 common transversals, so this $4$-GDD has exactly 3 parallel classes and is not
+resolvable; 7 of the ten pairwise disjoint parallel classes of a resolution are
+missing.
+\end{proposition}
+
+\begin{proof}
+\texttt{verify\_10\_4.py} checks that $A\perp B$, checks the $4$-GDD and the 3 parallel
+classes from the definitions, and enumerates all common transversals of $A$ and $B$;
+Corollary~\ref{cor:gdd} identifies these with the parallel classes.
+\end{proof}
+
+
+
+\section{The computer search}\label{sec:search}
+
+\begin{lemma}\label{lem:crit}
+A Latin square $L$ of order $n$ is a component of a set of three MOLS if and only if the
+cells admit two partitions $\mathcal P$, $\mathcal Q$ into transversals of $L$ with
+$|T\cap U|=1$ for all $T\in\mathcal P$, $U\in\mathcal Q$.  Equivalently, for some orthogonal
+mate $M$ of $L$ (given by $\mathcal P$) the common transversals of $L$ and $M$, namely the
+transversals $U$ of $L$ with $|U\cap T|=1$ for all $T\in\mathcal P$, contain a partition of
+the cells.
+\end{lemma}
+
+\begin{proof}
+If $L,M,M'$ are MOLS take for $\mathcal P,\mathcal Q$ the symbol classes of $M,M'$; the
+condition $|T\cap U|=1$ says that $(M,M')$ takes every pair of values once.  Conversely
+label the members of $\mathcal P$ and $\mathcal Q$ by $[n]$ to obtain $M$ and $M'$.
+\end{proof}
+
+\paragraph{Algorithm.}  For a square $L$ of order $10$ the program
+\texttt{mols3\_search.c}
+\begin{enumerate}
+\item enumerates all transversals of $L$ by backtracking;
+\item enumerates \emph{all} orthogonal mates, i.e.\ all exact covers of the $100$ cells
+  by transversals (Algorithm~X \cite{Knu00}: branch on an uncovered cell with the fewest
+  candidates, prune as soon as some uncovered cell has none);
+\item for every mate $\mathcal P$ computes the set $C(\mathcal P)$ of common transversals
+  as an intersection of precomputed bit sets $\{U:|U\cap T|=1\}$, $T\in\mathcal P$, and
+  decides by a second exact-cover search whether $C(\mathcal P)$ contains a partition of the
+  cells;
+\item records $\nu(\mathcal P)$, the largest number of pairwise disjoint members of
+  $C(\mathcal P)$ (a maximum clique computation), and, for every two mates $M,M'$ of $L$,
+  the number of distinct ordered pairs $(M(i,j),M'(i,j))$.
+\end{enumerate}
+Steps 1--3 decide completely whether $L$ is a component of a triple
+(Lemma~\ref{lem:crit}).  By Corollary~\ref{cor:gdd}, $\nu(\mathcal P)$ is the largest number
+of pairwise disjoint parallel classes of the $4$-GDD of type $10^{4}$ defined by the pair
+$(L,M)$; $\nu=10$ would be a $4$-RGDD of type $10^{4}$.  The pair count in step~4 is the
+measure used by Egan and Wanless ($100$ would be a triple, their record is $91$).
+
+\paragraph{Validation.}  The program reproduces the transversal counts of the Cayley
+tables of $\Z_7$ ($133$), $\Z_2^{3}$ ($384$), $\Z_3^{2}$ ($2241$), $\Z_9$ ($2025$), and
+finds none for $\Z_8$, $\Z_{10}$ and the dihedral group $D_5$ (in accordance with
+Proposition~\ref{prop:cm}).  It finds triples of MOLS containing the Cayley tables of
+$\Z_7$, $\Z_2^{3}$, $\Z_3^{2}$ and $\Z_9$ (the triples were checked independently).  The
+Cayley tables of $\Z_9$ and $\Z_3^{2}$ have $2{,}049{,}219$ and $12{,}445{,}836$ orthogonal
+mates respectively (here and below a mate is counted as a partition of the cells into
+transversals, i.e.\ up to renaming its symbols), exactly the numbers reported by Egan and
+Wanless \cite[Section~5]{EW16}.  An independent Python implementation (dictionary-based
+Algorithm~X) reproduced, for $\Z_7$ and for six random squares of order $10$, the
+numbers of transversals and mates, the maximum of $|C(\mathcal P)|$ and the number of
+mates that extend to a triple ($133$, $635$, $28$, $5$ for $\Z_7$).  Applied to the
+squares of Egan and Wanless (Section~\ref{sec:ew}), the C program reproduces the values
+$91$ and $7$ reported in \cite{EW16}.
+
+\paragraph{Searches.}
+\begin{enumerate}
+\item \emph{Random squares.}  Squares sampled with the Jacobson--Matthews Markov chain
+  \cite{JM96} (at least $1500$ steps between samples).
+\item \emph{Prolongations.}  For every transversal $T$ of the Cayley tables of $\Z_9$ and
+  $\Z_3^{2}$, the prolongation to order $10$ (move the symbols on $T$ to a new row and
+  column and put the new symbol on $T$); these squares have many more transversals
+  ($1376$--$1880$) and up to $2{,}592$ orthogonal mates.
+\item A simulated annealing on the number of transversals was also tried; it did not get
+  beyond about $980$ transversals (random squares have about $800$) and was abandoned.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+ & & squares with & & mates with & & & best & \\
+family & squares & a mate & mates & $C(\mathcal P)\ne\emptyset$ & $\max|C(\mathcal P)|$ & $\max\nu$ & pairs & triples\\
+\midrule
+random & 194{,}198 & 117{,}730 & 198{,}229 & 22{,}557 & 3 & 3 & 78 & 0\\
+prolongations, $\Z_9$ & 2{,}025 & 1{,}971 & 134{,}136 & 32{,}076 & 1 & 1 & 74 & 0\\
+prolongations, $\Z_3^{2}$ & 2{,}241 & 1{,}368 & 264{,}384 & 116{,}640 & 2 & 1 & 75 & 0\\
+\bottomrule
+\end{tabular}
+\caption{Exhaustive per-square tests.  ``mates'': orthogonal mates found (all of them, for every square); ``$C(\mathcal P)\ne\emptyset$'': mates $M$ for which $L$ and $M$ have at least one common transversal; $\nu$: largest number of pairwise disjoint common transversals (disjoint parallel classes of the $4$-GDD of type $10^{4}$ of $(L,M)$; $10$ would be a $4$-RGDD); ``best pairs'': largest number of distinct ordered pairs $(M(i,j),M'(i,j))$ over two mates $M\ne M'$ of one square ($100$ would be a triple).}
+\label{tab:results}
+\end{table}
+
+\paragraph{Interpretation.}  Typical squares of order $10$ have mates (in our random sample $60.6\%$ have one and the average number of mates is $1.02$, in line with the estimates of \cite{MMM07} quoted in \cite[Section~5]{EW16}: about $60\%$, and an expectation above $1$), but the pairs they
+form have almost no common transversals: a $4$-GDD of type $10^{4}$ obtained from such a
+pair has at most three disjoint parallel classes in our search, far from the ten needed.  This agrees with
+\cite[Table~3]{BKS26}, where none of several hundred orthogonal pairs found by a SAT
+solver had more than two common transversals, and is much weaker than the best known
+near miss (seven disjoint parallel classes and $91$ distinct pairs for the squares of Egan and
+Wanless, Section~\ref{sec:ew}).  These are statistics, not evidence of non-existence: the squares
+tested are a vanishing fraction of the $3.48\times 10^{16}$ main classes.
+
+\section{Conclusion}
+
+A $4$-RGDD of type $10^{4}$ is the same object as three MOLS of order $10$
+(Theorem~\ref{thm:equiv}).  We could not construct one, and no proof of non-existence is
+known; the case $(h,u)=(10,4)$ in \cite{WG14,WG17} is precisely the open problem
+``$N(10)\ge 3$?''.  We proved that such a design cannot be obtained from a difference matrix
+over a group of order $10$ or by developing base blocks under an abelian point-regular
+group (Corollary~\ref{cor:aut}), that a point-regular group would have to be an extension
+of $\Z_5$ by the dihedral group of order $8$ (and, by \cite{MMM07}, cannot exist at all),
+and that no incomplete design of this kind (such as Brouwer's, with a hole of type $2^{4}$)
+can be completed except in the trivial case of a hole of size one
+(Proposition~\ref{prop:holes}).  The closest known approximation, from the squares of Egan and Wanless, is a $4$-GDD of type
+$10^{4}$ with seven pairwise disjoint parallel classes; our own search, which tested
+$198{,}464$ squares exhaustively, got no further than three disjoint parallel classes (Proposition~\ref{prop:ourpair}).  The
+explicit near misses above are verified by \texttt{verify\_10\_4.py}; a candidate triple
+found by any other means can be checked with \texttt{python3 verify\_10\_4.py triple FILE},
+which builds the $4$-RGDD of Theorem~\ref{thm:equiv} and checks it from the definition.
+
+\begin{thebibliography}{99}
+
+\bibitem{ACD07} R.J.R. Abel, C.J. Colbourn, J.H. Dinitz, Mutually orthogonal Latin squares
+(MOLS), in: C.J. Colbourn, J.H. Dinitz (Eds.), Handbook of Combinatorial Designs, 2nd ed.,
+Chapman \& Hall/CRC, Boca Raton, 2007.
+
+\bibitem{BCSKG21} C. Bright, K.K.H. Cheung, B. Stevens, I. Kotsireas, V. Ganesh, A SAT-based
+resolution of Lam's problem, Proc. AAAI Conf. Artificial Intelligence 35 (2021) 3669--3676.
+
+\bibitem{BKS26} C. Bright, A. Keita, B. Stevens, Myrvold's results on orthogonal triples of
+$10\times 10$ Latin squares: a SAT investigation, Electron. J. Combin. 33(1) (2026) \#P1.30;
+arXiv:2503.10504.
+
+\bibitem{BS59} R.C. Bose, S.S. Shrikhande, On the falsity of Euler's conjecture about the
+non-existence of two orthogonal Latin squares of order $4t+2$, Proc. Nat. Acad. Sci. USA 45
+(1959) 734--737.
+
+\bibitem{BSP60} R.C. Bose, S.S. Shrikhande, E.T. Parker, Further results on the
+construction of mutually orthogonal Latin squares and the falsity of Euler's conjecture,
+Canad. J. Math. 12 (1960) 189--203.
+
+\bibitem{BSH77} A.E. Brouwer, A. Schrijver, H. Hanani, Group divisible designs with block
+size four, Discrete Math. 20 (1977) 1--10.
+
+\bibitem{BHP93} J.W. Brown, A.S. Hedayat, E.T. Parker, A pair of orthogonal Latin squares of
+order 10 with four shared parallel transversals, J. Combin. Inform. System Sci. 18 (1993)
+113--115.
+
+\bibitem{Bro84} A.E. Brouwer, Four MOLS of order 10 with a hole of order 2, J. Statist.
+Plann. Inference 10 (1984) 203--205.
+
+\bibitem{Bru63} R.H. Bruck, Finite nets. II. Uniqueness and imbedding, Pacific J. Math. 13
+(1963) 421--457.
+
+\bibitem{Del10} E. Delisle, The search for a triple of mutually orthogonal Latin squares of
+order ten: looking through pairs of dimension thirty-five and less, M.Sc. thesis,
+University of Victoria, 2010.
+
+\bibitem{DH14} P. Dukes, L. Howard, Group divisible designs in MOLS of order ten, Des.
+Codes Cryptogr. 71 (2014) 283--291.
+
+\bibitem{EW16} J. Egan, I.M. Wanless, Enumeration of MOLS of small order, Math. Comp. 85
+(2016) 799--824.
+
+\bibitem{GW23} M.J. Gill, I.M. Wanless, Pairs of MOLS of order ten satisfying non-trivial
+relations, Des. Codes Cryptogr. 91 (2023) 1293--1313.
+
+\bibitem{HP55} M. Hall, L.J. Paige, Complete mappings of finite groups, Pacific J. Math. 5
+(1955) 541--549.
+
+\bibitem{JM96} M.T. Jacobson, P. Matthews, Generating uniformly distributed random Latin
+squares, J. Combin. Des. 4 (1996) 405--437.
+
+\bibitem{Knu00} D.E. Knuth, Dancing links, in: Millennial Perspectives in Computer Science,
+Palgrave, 2000, pp.~187--214.
+
+\bibitem{LTS89} C.W.H. Lam, L. Thiel, S. Swiercz, The non-existence of finite projective
+planes of order 10, Canad. J. Math. 41 (1989) 1117--1123.
+
+\bibitem{Man44} H.B. Mann, On orthogonal Latin squares, Bull. Amer. Math. Soc. 50 (1944)
+249--257.
+
+\bibitem{MMM07} B.D. McKay, A. Meynert, W. Myrvold, Small Latin squares, quasigroups, and
+loops, J. Combin. Des. 15 (2007) 98--119.
+
+\bibitem{Myr99} W. Myrvold, Negative results for orthogonal triples of Latin squares of
+order 10, J. Combin. Math. Combin. Comput. 29 (1999) 95--106.
+
+\bibitem{Par59} E.T. Parker, Orthogonal Latin squares, Proc. Nat. Acad. Sci. USA 45 (1959)
+859--862.
+
+\bibitem{Par62} E.T. Parker, On orthogonal Latin squares, in: 1960 Institute on Finite
+Groups, Proc. Sympos. Pure Math. 6, Amer. Math. Soc., Providence, 1962.
+
+\bibitem{Roy11} D.J. Roy, Confirmation of the non-existence of a projective plane of order
+10, M.Sc. thesis, Carleton University, 2011.
+
+\bibitem{Tar1900} G. Tarry, Le probl\`eme des 36 officiers, Compte Rendu de l'Association
+Fran\c{c}aise pour l'Avancement des Sciences 29 (1900), part 2, 170--203.
+
+\bibitem{WG14} H. Wei, G. Ge, Some more 5-GDDs, 4-frames and 4-RGDDs, Discrete Math. 336
+(2014) 7--21.
+
+\bibitem{WG17} H. Wei, G. Ge, Some more uniformly resolvable designs with block sizes 2 and
+4, Discrete Math. 340 (2017) 2243--2249.
+
+\bibitem{ZK15} O. Zaikin, S. Kochemazov, The search for systems of diagonal Latin squares
+using the SAT@home project, Int. J. Open Inf. Technol. 3(11) (2015) 4--9.
+
+\bibitem{ZVB25} O. Zaikin, E. Vatutin, C. Bright, Enumerating extended self-orthogonal
+diagonal Latin squares of order up to 10, J. Integer Seq. 28 (2025) Article 25.7.4.
+
+\end{thebibliography}
+
+\end{document}
