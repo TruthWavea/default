@@ -44,7 +44,9 @@ point-regular group, so none is cyclic);
 (ii) a verified incomplete $4$-RGDD of type $10^{4}$ with a hole of type $2^{4}$,
 obtained from Brouwer's four MOLS of order $10$ with a hole of order $2$, and a proof
 that filling holes cannot help: a $4$-IRGDD of type $(10,h)^{4}$ has $h\le 2$, for $h=2$
-the hole can never be filled, and $h=1$ is equivalent to the original problem;
+the hole can never be filled, and $h=1$ is equivalent to the original problem (in
+particular a hole of size $4$, which three MOLS of order $4$ could fill, cannot occur: there
+are not even two incomplete MOLS of order $10$ with a common $4\times 4$ hole);
 (iii) an independent verification of the near triple of Egan and Wanless, which in
 design language is a $4$-GDD of type $10^{4}$ with seven pairwise disjoint parallel
 classes (a resolution needs ten);
@@ -466,6 +468,39 @@ every group once, so $Y$ can be added as a block; added to the unique holey para
 class, it completes a parallel class.
 \end{proof}
 
+\begin{remark}[Holes of size $h\ge 3$, in particular $h=4$]\label{rem:h4}
+For $h\in\{4,5,7,8,9\}$ the design needed to fill the hole does exist: $N(h)\ge 3$, so by
+Theorem~\ref{thm:equiv} there is a $4$-RGDD of type $h^{4}$; for $h=4$ it comes from three
+MOLS of order $4$.  The obstruction is therefore the incomplete design, not the filling.
+For $h=4$ the hole $Y$ has $16$ points, and every point of $Y$ lies in $10-h=6$ blocks, all
+in full parallel classes; but a full parallel class has only $10$ blocks, each with at
+most one point of $Y$, so it cannot cover the $16$ points of $Y$.
+
+Even the non-resolvable version fails: there are not even two incomplete MOLS of order $10$
+with a common $4\times 4$ hole (a $\TD(4,10)-\TD(4,4)$).  Let $L,M$ be such squares, with
+hole rows $R$, hole columns $K$ and hole symbols $S$, $|R|=|K|=|S|=4$.  A hole symbol never
+occurs in a hole row or a hole column, so in each of the six rows outside $R$ the four hole
+symbols of $L$ lie in the six columns outside $K$: $L$ has a hole symbol in $24$ of the
+$36$ cells of $\bar R\times\bar K$, and so has $M$.  Hence at least $24+24-36=12$ cells
+carry a pair of hole symbols, which an incomplete pair must not contain.  The same count
+gives the standard bound: $k$ incomplete MOLS of order $n$ with a common hole of size $h$
+($0<h<n$) need $k\,h(n-h)\le (n-h)^{2}$, i.e.\ $n\ge (k+1)h$.  For $n=10$ this means
+$h\le 3$ for a pair and $h\le 2$ for a triple.
+
+The bound also disposes of the variants with several filled sub-designs, as in
+\cite[Construction~4.3]{WG14} with $10=h_1+h_2+\cdots$: removing a filled sub-design of
+type $h_i^{4}$, whose parallel classes extend to parallel classes of the whole design,
+leaves a $4$-IRGDD of type $(10,h_i)^{4}$.  So every $h_i\le 2$, a part $h_i=2$ cannot be
+filled, and only $h_i=1$ (single blocks) remains.
+
+As an independent check, a SAT solver (CaDiCaL via PySAT, script \texttt{imols\_sat.py})
+reports within a second that no two and no three incomplete MOLS of order $10$ with a
+common $4\times 4$ hole exist, and no three with a common $3\times 3$ hole; on the other
+hand it finds at once an incomplete Latin square of order $10$ with a $4\times 4$ hole,
+two incomplete MOLS of order $12$ with a common $4\times 4$ hole, and two incomplete MOLS
+of order $9$ with a common $3\times 3$ hole (all solutions checked by the script).
+\end{remark}
+
 \subsection{The near triple of Egan and Wanless}\label{sec:ew}
 
 Egan and Wanless \cite[Section~8]{EW16} examined the Latin squares of order $10$ with an
@@ -674,7 +709,8 @@ group (Corollary~\ref{cor:aut}), that a point-regular group would have to be an 
 of $\Z_5$ by the dihedral group of order $8$ (and, by \cite{MMM07}, cannot exist at all),
 and that no incomplete design of this kind (such as Brouwer's, with a hole of type $2^{4}$)
 can be completed except in the trivial case of a hole of size one
-(Proposition~\ref{prop:holes}).  The closest known approximation, from the squares of Egan and Wanless, is a $4$-GDD of type
+(Proposition~\ref{prop:holes}); in particular a hole of size $4$, which three MOLS of order
+$4$ could fill, cannot occur at all (Remark~\ref{rem:h4}).  The closest known approximation, from the squares of Egan and Wanless, is a $4$-GDD of type
 $10^{4}$ with seven pairwise disjoint parallel classes; our own search, which tested
 $198{,}464$ squares exhaustively, got no further than three disjoint parallel classes (Proposition~\ref{prop:ourpair}).  The
 explicit near misses above are verified by \texttt{verify\_10\_4.py}; a candidate triple
